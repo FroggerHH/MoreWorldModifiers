@@ -94,15 +94,7 @@ internal class Plugin : BaseUnityPlugin
 
     #region configs
 
-    internal static ConfigEntry<Biome> MeadowsToConfig;
-    internal static ConfigEntry<Biome> SwampToConfig;
-    internal static ConfigEntry<Biome> MountainToConfig;
-    internal static ConfigEntry<Biome> BlackForestToConfig;
-    internal static ConfigEntry<Biome> PlainsToConfig;
-    internal static ConfigEntry<Biome> AshLandsToConfig;
-    internal static ConfigEntry<Biome> DeepNorthToConfig;
-    internal static ConfigEntry<Biome> OceanToConfig;
-    internal static ConfigEntry<Biome> MistlandsToConfig;
+    //internal static ConfigEntry<Biome> MeadowsToConfig;
 
     #endregion
 
@@ -153,28 +145,10 @@ internal class Plugin : BaseUnityPlugin
         configSync.AddLockingConfigEntry(config("Main", "Lock Configuration", Toggle.On,
             "If on, the configuration is locked and can be changed by server admins only."));
 
-        MeadowsToConfig =
-            config("Main", "Change Meadows to", Biome.Meadows, string.Empty);
-        SwampToConfig =
-            config("Main", "Change Swamp to", Biome.Swamp, string.Empty);
-        MountainToConfig =
-            config("Main", "Change Mountain to", Biome.Mountain, string.Empty);
-        BlackForestToConfig =
-            config("Main", "Change BlackForest to", Biome.BlackForest, string.Empty);
-        PlainsToConfig =
-            config("Main", "Change Plains to", Biome.Plains, string.Empty);
-        AshLandsToConfig =
-            config("Main", "Change AshLands to", Biome.AshLands, string.Empty);
-        DeepNorthToConfig =
-            config("Main", "Change DeepNorth to", Biome.DeepNorth, string.Empty);
-        OceanToConfig =
-            config("Main", "Change Ocean to", Biome.Ocean, string.Empty);
-        MistlandsToConfig =
-            config("Main", "Change Mistlands to", Biome.Ocean, string.Empty);
+        // MeadowsToConfig =
+        //     config("Main", "Change Meadows to", Biome.Meadows, string.Empty);
 
         #endregion
-
-        
         
         harmony.PatchAll();
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -66,9 +67,42 @@ internal static class MoreWorldModifiers
         ServerOptionsGUI.m_modifiers = keys.ToArray();
     }
 
-    [HarmonyPatch(typeof(ItemStand), nameof(ItemStand.Awake)), HarmonyPostfix]
-    public static void ApplyModsEffects(ItemStand __instance)
+    [HarmonyPatch(typeof(BossStone), nameof(BossStone.Start)), HarmonyPostfix]
+    public static void ApplyPowersBossesOnStartEffectPatch(BossStone __instance)
+    {
+        __instance.StartCoroutine(ApplyPowersBossesOnStartEffect(__instance));
+    }
+    [HarmonyPatch(typeof(Player), nameof(Player.AddTrophy)), HarmonyPrefix]
+    public static void FixAddTrophy(Player __instance)
     {
         
+    }
+
+    public static IEnumerator ApplyPowersBossesOnStartEffect(BossStone bossStone)
+    {
+        yield return new WaitWhile(() => !Player.m_localPlayer);
+        var globalKey = ZoneSystem.instance.GetGlobalKey("PowersBossesOnStart");
+        if (globalKey && bossStone.m_itemStand && bossStone.m_itemStand.m_nview &&
+            bossStone.m_itemStand.m_nview.IsOwner())
+        {
+            if (!bossStone.m_itemStand.HaveAttachment())
+            {
+                var item = bossStone.m_itemStand.m_supportedItems[0].m_itemData;
+                foreach (var drop in ObjectDB.m_instance.GetAllItems(ItemDrop.ItemData.ItemType.Trophy, ""))
+                {
+                    if (drop.m_itemData.m_shared.m_name == item.m_shared.m_name)
+                    {
+                        item.m_dropPrefab = drop.gameObject;
+                        break;
+                    }
+                }
+                Debug($"localPlayer is {Player.m_localPlayer}");
+                Player.m_localPlayer.GetInventory().AddItem(item);
+                bossStone.m_itemStand.m_queuedItem = item;
+                bossStone.CancelInvoke("UpdateAttach");
+                bossStone.InvokeRepeating("UpdateAttach", 0.0f, 0.1f);
+                bossStone.m_itemStand.m_queuedItem = item;
+            }
+        }
     }
 }
