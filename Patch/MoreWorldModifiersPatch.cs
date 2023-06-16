@@ -99,8 +99,8 @@ internal static class MoreWorldModifiers
                 Debug($"localPlayer is {Player.m_localPlayer}");
                 Player.m_localPlayer.GetInventory().AddItem(item);
                 bossStone.m_itemStand.m_queuedItem = item;
-                bossStone.CancelInvoke("UpdateAttach");
-                bossStone.InvokeRepeating("UpdateAttach", 0.0f, 0.1f);
+                bossStone.m_itemStand.CancelInvoke("UpdateAttach");
+                bossStone.m_itemStand.InvokeRepeating("UpdateAttach", 0.0f, 0.1f);
                 bossStone.m_itemStand.m_queuedItem = item;
             }
         }
