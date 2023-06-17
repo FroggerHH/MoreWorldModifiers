@@ -21,25 +21,57 @@ internal static class MoreWorldModifiers
     [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.Awake)), HarmonyPostfix]
     public static void AddMoreWorldModifiers(ServerOptionsGUI __instance)
     {
-        foreach (var modifier in ServerOptionsGUI.m_modifiers)
+        //AssetBundle bundle = PrefabManager.RegisterAssetBundle()
+        var cancseButton = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Cancel");
+        var newPanel =
+            Object.Instantiate(__instance.transform.GetChild(0).gameObject, __instance.transform.GetChild(0).parent);
+        newPanel.SetActive(false);
+        newPanel.name = "New Modifiers";
+        for (int i = 0; i < newPanel.transform.childCount; i++)
         {
-            if (modifier is KeyToggle)
-            {
-                modifier.transform.position = new Vector3(modifier.transform.position.x - 50,
-                    modifier.transform.position.y - 50,
-                    modifier.transform.position.z);
-            }
+            Object.Destroy(newPanel.transform.GetChild(i).gameObject);
         }
 
-        ServerOptionsGUI.m_instance.m_doneButton.transform.position = new Vector3(
-            ServerOptionsGUI.m_instance.m_doneButton.transform.position.x,
-            ServerOptionsGUI.m_instance.m_doneButton.transform.position.y - 50,
-            ServerOptionsGUI.m_instance.m_doneButton.transform.position.z);
-        var cancseButton = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Cancel");
-        cancseButton.transform.position = new Vector3(
-            cancseButton.transform.position.x,
-            cancseButton.transform.position.y - 50,
-            cancseButton.transform.position.z);
+        var buttonCloce = Object.Instantiate(cancseButton, newPanel.transform).GetComponent<Button>();
+        buttonCloce.name = "Cloce Advanced Settings";
+        buttonCloce.onClick.RemoveAllListeners();
+        buttonCloce.onClick = new();
+        buttonCloce.onClick.AddListener((() =>
+        {
+            newPanel.SetActive(false);
+            __instance.transform.GetChild(0).gameObject.SetActive(true);
+        }));
+        var buttonShow = Object.Instantiate(cancseButton, cancseButton.transform.parent).GetComponent<Button>();
+        buttonShow.gameObject.name = "Show Advanced Settings";
+        buttonShow.onClick.RemoveAllListeners();
+        buttonShow.onClick = new();
+        buttonShow.onClick.AddListener((() =>
+        {
+            newPanel.SetActive(true);
+            __instance.transform.GetChild(0).gameObject.SetActive(false);
+        }));
+        buttonShow.GetComponentInChildren<Text>().text = "Advanced Settings";
+        buttonShow.transform.position = new(buttonShow.transform.position.x + 50, buttonShow.transform.position.y - 20,
+            buttonShow.transform.position.z);
+//(newPanel.transform as RectTransform).
+        // foreach (var modifier in ServerOptionsGUI.m_modifiers)
+        // {
+        //     if (modifier is KeyToggle)
+        //     {
+        //         modifier.transform.position = new Vector3(modifier.transform.position.x - 50,
+        //             modifier.transform.position.y - 50,
+        //             modifier.transform.position.z);
+        //     }
+        // }
+        //
+        // ServerOptionsGUI.m_instance.m_doneButton.transform.position = new Vector3(
+        //     ServerOptionsGUI.m_instance.m_doneButton.transform.position.x,
+        //     ServerOptionsGUI.m_instance.m_doneButton.transform.position.y - 50,
+        //     ServerOptionsGUI.m_instance.m_doneButton.transform.position.z);
+        // cancseButton.transform.position = new Vector3(
+        //     cancseButton.transform.position.x,
+        //     cancseButton.transform.position.y - 50,
+        //     cancseButton.transform.position.z);
 
         var mod1 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "PlayerBasedEvents");
         var mod2 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Nomap");
@@ -72,11 +104,6 @@ internal static class MoreWorldModifiers
     {
         __instance.StartCoroutine(ApplyPowersBossesOnStartEffect(__instance));
     }
-    [HarmonyPatch(typeof(Player), nameof(Player.AddTrophy)), HarmonyPrefix]
-    public static void FixAddTrophy(Player __instance)
-    {
-        
-    }
 
     public static IEnumerator ApplyPowersBossesOnStartEffect(BossStone bossStone)
     {
@@ -96,6 +123,7 @@ internal static class MoreWorldModifiers
                         break;
                     }
                 }
+
                 Debug($"localPlayer is {Player.m_localPlayer}");
                 Player.m_localPlayer.GetInventory().AddItem(item);
                 bossStone.m_itemStand.m_queuedItem = item;
