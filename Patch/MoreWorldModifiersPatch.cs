@@ -67,11 +67,11 @@ internal static class MoreWorldModifiers
         powersBossesOnStart.m_toolTip = "Powers of all bosses on start";
         powersBossesOnStart.GetComponentInChildren<Text>().text = "Powers of all bosses on start";
 
-        var haldorOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
-        haldorOnStart.name = "HaldorOnStart";
-        haldorOnStart.m_enabledKey = "HaldorOnStart";
-        haldorOnStart.m_toolTip = "Haldor on starting island";
-        haldorOnStart.GetComponentInChildren<Text>().text = "Haldor on start";
+        var noStaminaCost = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
+        noStaminaCost.name = "NoStaminaCost";
+        noStaminaCost.m_enabledKey = "NoStaminaCost";
+        noStaminaCost.m_toolTip = "No stamina cost";
+        haldorOnStart.GetComponentInChildren<Text>().text = "No stamina cost";
 
         var hildirOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
         hildirOnStart.name = "HildirOnStart";
@@ -81,14 +81,14 @@ internal static class MoreWorldModifiers
 
         List<KeyUI> keys = ServerOptionsGUI.m_modifiers.ToList();
         keys.Add(powersBossesOnStart);
-        keys.Add(haldorOnStart);
+        keys.Add(noStaminaCost);
         keys.Add(hildirOnStart);
         ServerOptionsGUI.m_modifiers = keys.ToArray();
 
         powersBossesOnStart.transform.SetParent(newPanel.transform);
         powersBossesOnStart.transform.position = new Vector3(846, 775, 0);
-        haldorOnStart.transform.SetParent(newPanel.transform);
-        haldorOnStart.transform.position = new Vector3(1010, 775, 0);
+        noStaminaCost.transform.SetParent(newPanel.transform);
+        noStaminaCost.transform.position = new Vector3(1010, 775, 0);
         hildirOnStart.transform.SetParent(newPanel.transform);
         hildirOnStart.transform.position = new Vector3(1174, 775, 0);
     }
@@ -100,7 +100,7 @@ internal static class MoreWorldModifiers
     }
 
 
-    [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.GenerateLocations), new Type[0]), HarmonyPostfix]
+    [HarmonyPatch(typeof(Player), nameof(Player), new Type[0]), HarmonyPostfix]
     public static void ApplyHaldorOnStartEffectPatch(ZoneSystem __instance)
     {
         var globalKey = ZoneSystem.instance.GetGlobalKey("HaldorOnStart");
@@ -115,21 +115,7 @@ internal static class MoreWorldModifiers
         __instance.RegisterLocation(location, randomPointInZone, false);
     }
 
-    [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.GenerateLocations), new Type[0]), HarmonyPostfix]
-    public static void ApplyHildirOnStartEffectPatch(ZoneSystem __instance)
-    {
-        var globalKey = ZoneSystem.instance.GetGlobalKey("HildirOnStart");
-        if (!globalKey) return;
-        Debug($"__instance.m_locations = {__instance.m_locations.Count}");
 
-        var location = __instance.m_locations.Find(x => x.m_prefabName == "Hildir");
-        List<ZoneSystem.LocationInstance> locations = new();
-        ZoneSystem.instance.FindLocations("StartTemple", ref locations);
-        
-        Vector2i randomZone = __instance.GetRandomZone(100);
-        Vector3 randomPointInZone = __instance.GetRandomPointInZone(randomZone, 0);
-        __instance.RegisterLocation(location, randomPointInZone, false);
-    }
 
     public static IEnumerator ApplyPowersBossesOnStartEffect(BossStone bossStone)
     {
