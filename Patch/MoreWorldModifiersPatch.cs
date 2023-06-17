@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,12 +16,9 @@ namespace MoreWorldModifiers;
 [HarmonyPatch]
 internal static class MoreWorldModifiers
 {
-    private static bool isInitingStartTemple = false;
-
     [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.Awake)), HarmonyPostfix]
     public static void AddMoreWorldModifiers(ServerOptionsGUI __instance)
     {
-        //AssetBundle bundle = PrefabManager.RegisterAssetBundle()
         var cancseButton = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Cancel");
         var newPanel =
             Object.Instantiate(__instance.transform.GetChild(0).gameObject, __instance.transform.GetChild(0).parent);
@@ -61,25 +58,7 @@ internal static class MoreWorldModifiers
         }));
         buttonShow.GetComponentInChildren<Text>().text = "Advanced Modifiers";
         buttonShow.transform.position = buttonCloce.transform.position;
-//(newPanel.transform as RectTransform).
-        // foreach (var modifier in ServerOptionsGUI.m_modifiers)
-        // {
-        //     if (modifier is KeyToggle)
-        //     {
-        //         modifier.transform.position = new Vector3(modifier.transform.position.x - 50,
-        //             modifier.transform.position.y - 50,
-        //             modifier.transform.position.z);
-        //     }
-        // }
-        //
-        // ServerOptionsGUI.m_instance.m_doneButton.transform.position = new Vector3(
-        //     ServerOptionsGUI.m_instance.m_doneButton.transform.position.x,
-        //     ServerOptionsGUI.m_instance.m_doneButton.transform.position.y - 50,
-        //     ServerOptionsGUI.m_instance.m_doneButton.transform.position.z);
-        // cancseButton.transform.position = new Vector3(
-        //     cancseButton.transform.position.x,
-        //     cancseButton.transform.position.y - 50,
-        //     cancseButton.transform.position.z);
+
 
         var mod1 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "PlayerBasedEvents");
         var powersBossesOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
