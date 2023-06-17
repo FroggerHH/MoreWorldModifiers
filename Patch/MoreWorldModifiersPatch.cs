@@ -82,36 +82,74 @@ internal static class MoreWorldModifiers
         //     cancseButton.transform.position.z);
 
         var mod1 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "PlayerBasedEvents");
-        var mod2 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Nomap");
-        var customModkeyTest1 = Object.Instantiate(mod1, mod1.transform.parent); //1086
-        customModkeyTest1.name = "PowersBossesOnStart";
-        var customModkeyTestKeyToggle1 = customModkeyTest1.GetComponent<KeyToggle>();
-        customModkeyTestKeyToggle1.m_enabledKey = "PowersBossesOnStart";
-        customModkeyTestKeyToggle1.m_toolTip = "Powers of all bosses on start";
-        customModkeyTestKeyToggle1.GetComponentInChildren<Text>().text = "Powers of all bosses on start";
+        var powersBossesOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
+        powersBossesOnStart.name = "PowersBossesOnStart";
+        powersBossesOnStart.m_enabledKey = "PowersBossesOnStart";
+        powersBossesOnStart.m_toolTip = "Powers of all bosses on start";
+        powersBossesOnStart.GetComponentInChildren<Text>().text = "Powers of all bosses on start";
 
-        var customModkeyTest2 = Object.Instantiate(mod2, mod2.transform.parent); //1086
-        customModkeyTest2.name = "CustomModkeyTest2";
-        var customModkeyTest2KeyToggle = customModkeyTest2.GetComponent<KeyToggle>();
-        customModkeyTest2KeyToggle.m_enabledKey = "CustomModkeyTest2";
-        customModkeyTest2KeyToggle.m_toolTip = "CustomModkeyTest2";
-        customModkeyTest2KeyToggle.GetComponentInChildren<Text>().text = "CustomModkeyTest2";
+        var haldorOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
+        haldorOnStart.name = "HaldorOnStart";
+        haldorOnStart.m_enabledKey = "HaldorOnStart";
+        haldorOnStart.m_toolTip = "Haldor on starting island";
+        haldorOnStart.GetComponentInChildren<Text>().text = "Haldor on start";
+
+        var hildirOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
+        hildirOnStart.name = "HildirOnStart";
+        hildirOnStart.m_enabledKey = "HildirOnStart";
+        hildirOnStart.m_toolTip = "Hildir  on starting island";
+        hildirOnStart.GetComponentInChildren<Text>().text = "Hildir on start";
 
         List<KeyUI> keys = ServerOptionsGUI.m_modifiers.ToList();
-        keys.Add(customModkeyTestKeyToggle1);
-        keys.Add(customModkeyTest2KeyToggle);
+        keys.Add(powersBossesOnStart);
+        keys.Add(haldorOnStart);
+        keys.Add(hildirOnStart);
         ServerOptionsGUI.m_modifiers = keys.ToArray();
 
-        customModkeyTest1.transform.SetParent(newPanel.transform);
-        customModkeyTest1.transform.position = new Vector3(846, 775, 0);
-        customModkeyTest2.transform.SetParent(newPanel.transform);
-        customModkeyTest2.transform.position = new Vector3(900, 775, 0);
+        powersBossesOnStart.transform.SetParent(newPanel.transform);
+        powersBossesOnStart.transform.position = new Vector3(846, 775, 0);
+        haldorOnStart.transform.SetParent(newPanel.transform);
+        haldorOnStart.transform.position = new Vector3(1010, 775, 0);
+        hildirOnStart.transform.SetParent(newPanel.transform);
+        hildirOnStart.transform.position = new Vector3(1174, 775, 0);
     }
 
     [HarmonyPatch(typeof(BossStone), nameof(BossStone.Start)), HarmonyPostfix]
     public static void ApplyPowersBossesOnStartEffectPatch(BossStone __instance)
     {
         __instance.StartCoroutine(ApplyPowersBossesOnStartEffect(__instance));
+    }
+
+
+    [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.GenerateLocations), new Type[0]), HarmonyPostfix]
+    public static void ApplyHaldorOnStartEffectPatch(ZoneSystem __instance)
+    {
+        var globalKey = ZoneSystem.instance.GetGlobalKey("HaldorOnStart");
+        if (!globalKey) return;
+
+        var location = __instance.m_locations.Find(x => x.m_prefabName == "Haldor");
+        List<ZoneSystem.LocationInstance> locations = new();
+        ZoneSystem.instance.FindLocations("StartTemple", ref locations);
+        
+        Vector2i randomZone = __instance.GetRandomZone(100);
+        Vector3 randomPointInZone = __instance.GetRandomPointInZone(randomZone, 0);
+        __instance.RegisterLocation(location, randomPointInZone, false);
+    }
+
+    [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.GenerateLocations), new Type[0]), HarmonyPostfix]
+    public static void ApplyHildirOnStartEffectPatch(ZoneSystem __instance)
+    {
+        var globalKey = ZoneSystem.instance.GetGlobalKey("HildirOnStart");
+        if (!globalKey) return;
+        Debug($"__instance.m_locations = {__instance.m_locations.Count}");
+
+        var location = __instance.m_locations.Find(x => x.m_prefabName == "Hildir");
+        List<ZoneSystem.LocationInstance> locations = new();
+        ZoneSystem.instance.FindLocations("StartTemple", ref locations);
+        
+        Vector2i randomZone = __instance.GetRandomZone(100);
+        Vector3 randomPointInZone = __instance.GetRandomPointInZone(randomZone, 0);
+        __instance.RegisterLocation(location, randomPointInZone, false);
     }
 
     public static IEnumerator ApplyPowersBossesOnStartEffect(BossStone bossStone)
