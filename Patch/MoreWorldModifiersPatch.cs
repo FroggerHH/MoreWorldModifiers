@@ -29,11 +29,20 @@ internal static class MoreWorldModifiers
         newPanel.name = "New Modifiers";
         for (int i = 0; i < newPanel.transform.childCount; i++)
         {
-            Object.Destroy(newPanel.transform.GetChild(i).gameObject);
+            var gameObject = newPanel.transform.GetChild(i).gameObject;
+            if (gameObject.name != "bkg" && gameObject.name != "topic") // && gameObject.name != ""
+            {
+                Object.Destroy(gameObject);
+            }
         }
 
+        newPanel.GetComponentInChildren<Text>().text = "Advanced Modifiers";
+
         var buttonCloce = Object.Instantiate(cancseButton, newPanel.transform).GetComponent<Button>();
-        buttonCloce.name = "Cloce Advanced Settings";
+        buttonCloce.transform.position = new(buttonCloce.transform.position.x + 100,
+            buttonCloce.transform.position.y - 60,
+            buttonCloce.transform.position.z);
+        buttonCloce.name = "Cloce Advanced Modifiers";
         buttonCloce.onClick.RemoveAllListeners();
         buttonCloce.onClick = new();
         buttonCloce.onClick.AddListener((() =>
@@ -42,7 +51,7 @@ internal static class MoreWorldModifiers
             __instance.transform.GetChild(0).gameObject.SetActive(true);
         }));
         var buttonShow = Object.Instantiate(cancseButton, cancseButton.transform.parent).GetComponent<Button>();
-        buttonShow.gameObject.name = "Show Advanced Settings";
+        buttonShow.gameObject.name = "Show Advanced Modifiers";
         buttonShow.onClick.RemoveAllListeners();
         buttonShow.onClick = new();
         buttonShow.onClick.AddListener((() =>
@@ -50,9 +59,8 @@ internal static class MoreWorldModifiers
             newPanel.SetActive(true);
             __instance.transform.GetChild(0).gameObject.SetActive(false);
         }));
-        buttonShow.GetComponentInChildren<Text>().text = "Advanced Settings";
-        buttonShow.transform.position = new(buttonShow.transform.position.x + 50, buttonShow.transform.position.y - 20,
-            buttonShow.transform.position.z);
+        buttonShow.GetComponentInChildren<Text>().text = "Advanced Modifiers";
+        buttonShow.transform.position = buttonCloce.transform.position;
 //(newPanel.transform as RectTransform).
         // foreach (var modifier in ServerOptionsGUI.m_modifiers)
         // {
@@ -76,8 +84,6 @@ internal static class MoreWorldModifiers
         var mod1 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "PlayerBasedEvents");
         var mod2 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Nomap");
         var customModkeyTest1 = Object.Instantiate(mod1, mod1.transform.parent); //1086
-        customModkeyTest1.transform.position = new Vector3(mod1.transform.position.x + 164, mod1.transform.position.y,
-            mod1.transform.position.z);
         customModkeyTest1.name = "PowersBossesOnStart";
         var customModkeyTestKeyToggle1 = customModkeyTest1.GetComponent<KeyToggle>();
         customModkeyTestKeyToggle1.m_enabledKey = "PowersBossesOnStart";
@@ -85,8 +91,6 @@ internal static class MoreWorldModifiers
         customModkeyTestKeyToggle1.GetComponentInChildren<Text>().text = "Powers of all bosses on start";
 
         var customModkeyTest2 = Object.Instantiate(mod2, mod2.transform.parent); //1086
-        customModkeyTest2.transform.position = new Vector3(mod2.transform.position.x + 164, mod2.transform.position.y,
-            mod2.transform.position.z);
         customModkeyTest2.name = "CustomModkeyTest2";
         var customModkeyTest2KeyToggle = customModkeyTest2.GetComponent<KeyToggle>();
         customModkeyTest2KeyToggle.m_enabledKey = "CustomModkeyTest2";
@@ -97,6 +101,11 @@ internal static class MoreWorldModifiers
         keys.Add(customModkeyTestKeyToggle1);
         keys.Add(customModkeyTest2KeyToggle);
         ServerOptionsGUI.m_modifiers = keys.ToArray();
+
+        customModkeyTest1.transform.SetParent(newPanel.transform);
+        customModkeyTest1.transform.position = new Vector3(846, 775, 0);
+        customModkeyTest2.transform.SetParent(newPanel.transform);
+        customModkeyTest2.transform.position = new Vector3(900, 775, 0);
     }
 
     [HarmonyPatch(typeof(BossStone), nameof(BossStone.Start)), HarmonyPostfix]
