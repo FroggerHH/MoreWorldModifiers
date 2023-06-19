@@ -4,6 +4,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using LocalizationManager;
 using ServerSync;
 using UnityEngine;
 using static Heightmap;
@@ -24,7 +25,7 @@ internal class Plugin : BaseUnityPlugin
 
     #region tools
 
-    public static void Debug(string msg)
+    public static void Debug(object msg)
     {
         _self.Logger.LogInfo(msg);
     }
@@ -39,7 +40,7 @@ internal class Plugin : BaseUnityPlugin
         _self.Logger.LogError(msg);
     }
 
-    public static void DebugWarning(string msg, bool showWriteToDev)
+    public static void DebugWarning(object msg, bool showWriteToDev)
     {
         if (showWriteToDev)
         {
@@ -150,6 +151,8 @@ internal class Plugin : BaseUnityPlugin
 
         #endregion
         
+        Localizer.Load();
+
         harmony.PatchAll();
     }
 }

@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static MoreWorldModifiers.Plugin;
+using static KeySlider;
 using static Heightmap;
 using Object = UnityEngine.Object;
 
@@ -16,133 +17,204 @@ namespace MoreWorldModifiers;
 [HarmonyPatch]
 internal static class MoreWorldModifiers
 {
-    [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.Awake)), HarmonyPostfix]
-    public static void AddMoreWorldModifiers(ServerOptionsGUI __instance)
+    internal static GameObject panel;
+    internal static Text tooltipText;
+
+    private static void CreateButtons()
     {
         var cancseButton = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Cancel");
-        var newPanel =
-            Object.Instantiate(__instance.transform.GetChild(0).gameObject, __instance.transform.GetChild(0).parent);
-        newPanel.SetActive(false);
-        newPanel.name = "New Modifiers";
-        for (int i = 0; i < newPanel.transform.childCount; i++)
-        {
-            var gameObject = newPanel.transform.GetChild(i).gameObject;
-            if (gameObject.name != "bkg" && gameObject.name != "topic") // && gameObject.name != ""
-            {
-                Object.Destroy(gameObject);
-            }
-        }
-
-        newPanel.GetComponentInChildren<Text>().text = "Advanced Modifiers";
-
-        var buttonCloce = Object.Instantiate(cancseButton, newPanel.transform).GetComponent<Button>();
+        var buttonCloce = Object.Instantiate(cancseButton, panel.transform).GetComponent<Button>();
         buttonCloce.transform.position = new(buttonCloce.transform.position.x + 100,
             buttonCloce.transform.position.y - 60,
             buttonCloce.transform.position.z);
         buttonCloce.name = "Cloce Advanced Modifiers";
         buttonCloce.onClick.RemoveAllListeners();
         buttonCloce.onClick = new();
+        buttonCloce.GetComponentInChildren<Text>().text = "$back_button";
         buttonCloce.onClick.AddListener((() =>
         {
-            newPanel.SetActive(false);
-            __instance.transform.GetChild(0).gameObject.SetActive(true);
+            panel.SetActive(false);
+            ServerOptionsGUI.m_instance.transform.GetChild(0).gameObject.SetActive(true);
         }));
         var buttonShow = Object.Instantiate(cancseButton, cancseButton.transform.parent).GetComponent<Button>();
         buttonShow.gameObject.name = "Show Advanced Modifiers";
         buttonShow.onClick.RemoveAllListeners();
         buttonShow.onClick = new();
+
         buttonShow.onClick.AddListener((() =>
         {
-            newPanel.SetActive(true);
-            __instance.transform.GetChild(0).gameObject.SetActive(false);
+            panel.SetActive(true);
+            ServerOptionsGUI.m_instance.transform.GetChild(0).gameObject.SetActive(false);
         }));
-        buttonShow.GetComponentInChildren<Text>().text = "Advanced Modifiers";
+        buttonShow.GetComponentInChildren<Text>().text = "$advancedModifiers";
         buttonShow.transform.position = buttonCloce.transform.position;
-
-
-        var mod1 = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "PlayerBasedEvents");
-        var powersBossesOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
-        powersBossesOnStart.name = "PowersBossesOnStart";
-        powersBossesOnStart.m_enabledKey = "PowersBossesOnStart";
-        powersBossesOnStart.m_toolTip = "Powers of all bosses on start";
-        powersBossesOnStart.GetComponentInChildren<Text>().text = "Powers of all bosses on start";
-
-        var noStaminaCost = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
-        noStaminaCost.name = "NoStaminaCost";
-        noStaminaCost.m_enabledKey = "NoStaminaCost";
-        noStaminaCost.m_toolTip = "No stamina cost";
-        haldorOnStart.GetComponentInChildren<Text>().text = "No stamina cost";
-
-        var hildirOnStart = Object.Instantiate(mod1, mod1.transform.parent).GetComponent<KeyToggle>();
-        hildirOnStart.name = "HildirOnStart";
-        hildirOnStart.m_enabledKey = "HildirOnStart";
-        hildirOnStart.m_toolTip = "Hildir  on starting island";
-        hildirOnStart.GetComponentInChildren<Text>().text = "Hildir on start";
-
-        List<KeyUI> keys = ServerOptionsGUI.m_modifiers.ToList();
-        keys.Add(powersBossesOnStart);
-        keys.Add(noStaminaCost);
-        keys.Add(hildirOnStart);
-        ServerOptionsGUI.m_modifiers = keys.ToArray();
-
-        powersBossesOnStart.transform.SetParent(newPanel.transform);
-        powersBossesOnStart.transform.position = new Vector3(846, 775, 0);
-        noStaminaCost.transform.SetParent(newPanel.transform);
-        noStaminaCost.transform.position = new Vector3(1010, 775, 0);
-        hildirOnStart.transform.SetParent(newPanel.transform);
-        hildirOnStart.transform.position = new Vector3(1174, 775, 0);
     }
 
-    [HarmonyPatch(typeof(BossStone), nameof(BossStone.Start)), HarmonyPostfix]
-    public static void ApplyPowersBossesOnStartEffectPatch(BossStone __instance)
+    private static void CreatePanel()
     {
-        __instance.StartCoroutine(ApplyPowersBossesOnStartEffect(__instance));
-    }
-
-
-    [HarmonyPatch(typeof(Player), nameof(Player), new Type[0]), HarmonyPostfix]
-    public static void ApplyHaldorOnStartEffectPatch(ZoneSystem __instance)
-    {
-        var globalKey = ZoneSystem.instance.GetGlobalKey("HaldorOnStart");
-        if (!globalKey) return;
-
-        var location = __instance.m_locations.Find(x => x.m_prefabName == "Haldor");
-        List<ZoneSystem.LocationInstance> locations = new();
-        ZoneSystem.instance.FindLocations("StartTemple", ref locations);
-        
-        Vector2i randomZone = __instance.GetRandomZone(100);
-        Vector3 randomPointInZone = __instance.GetRandomPointInZone(randomZone, 0);
-        __instance.RegisterLocation(location, randomPointInZone, false);
-    }
-
-
-
-    public static IEnumerator ApplyPowersBossesOnStartEffect(BossStone bossStone)
-    {
-        yield return new WaitWhile(() => !Player.m_localPlayer);
-        var globalKey = ZoneSystem.instance.GetGlobalKey("PowersBossesOnStart");
-        if (globalKey && bossStone.m_itemStand && bossStone.m_itemStand.m_nview &&
-            bossStone.m_itemStand.m_nview.IsOwner())
+        panel =
+            Object.Instantiate(ServerOptionsGUI.m_instance.transform.GetChild(0).gameObject,
+                ServerOptionsGUI.m_instance.transform.GetChild(0).parent);
+        panel.SetActive(false);
+        panel.name = "New Modifiers";
+        Utils.FindChild(panel.transform, "topic").GetComponent<Text>().text = "$advancedModifiers";
+        for (int i = 0; i < panel.transform.childCount; i++)
         {
-            if (!bossStone.m_itemStand.HaveAttachment())
+            var gameObject = panel.transform.GetChild(i).gameObject;
+            if (gameObject.name != "bkg" &&
+                gameObject.name != "topic" &&
+                gameObject.name != "Tooltips") // && gameObject.name != ""
             {
-                var item = bossStone.m_itemStand.m_supportedItems[0].m_itemData;
-                foreach (var drop in ObjectDB.m_instance.GetAllItems(ItemDrop.ItemData.ItemType.Trophy, ""))
-                {
-                    if (drop.m_itemData.m_shared.m_name == item.m_shared.m_name)
-                    {
-                        item.m_dropPrefab = drop.gameObject;
-                        break;
-                    }
-                }
-
-                Debug($"localPlayer is {Player.m_localPlayer}");
-                Player.m_localPlayer.GetInventory().AddItem(item);
-                bossStone.m_itemStand.m_queuedItem = item;
-                bossStone.m_itemStand.CancelInvoke("UpdateAttach");
-                bossStone.m_itemStand.InvokeRepeating("UpdateAttach", 0.0f, 0.1f);
-                bossStone.m_itemStand.m_queuedItem = item;
+                Object.Destroy(gameObject);
             }
         }
+
+        tooltipText = Utils.FindChild(panel.transform, "ToolTipText").GetComponent<Text>();
+
+        panel.GetComponentInChildren<Text>().text = "$advancedModifiers";
+    }
+
+    [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.ReadKeys)), HarmonyPrefix]
+    private static void ReadKeysPatch(World world)
+    {
+        if (world.m_startingGlobalKeys.Count == 0 && !world.m_startingGlobalKeys.Contains("FallDamage".ToLower()))
+            world.m_startingGlobalKeys.Add("FallDamage".ToLower());
+    }
+
+    [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.OnNewWorldDone)), HarmonyPostfix]
+    private static void OnNewWorldDone(FejdStartup __instance)
+    {
+        if (!__instance.m_world.m_startingGlobalKeys.Contains("FallDamage".ToLower()))
+            __instance.m_world.m_startingGlobalKeys.Add("FallDamage".ToLower());
+    }
+
+    [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.Awake)), HarmonyPostfix]
+    public static void AddMoreWorldModifiers(ServerOptionsGUI __instance)
+    {
+        CreatePanel();
+        CreateButtons();
+
+
+        CreateMod("PowersBossesOnStart", new Vector3(846, 775, 0));
+        CreateMod("NoStaminaCost", new Vector3(1010, 775, 0));
+        CreateMod("NoDurabilityLoss", new Vector3(1174, 775, 0));
+        CreateMod("AllRecipesUnlocked", new Vector3(846, 720, 0));
+        CreateMod("FallDamage", new Vector3(1010, 720, 0), true);
+        CreateMod("NoWet", new Vector3(1174, 720, 0), false);
+        CreateSlider("MapExploration", new Vector3(960, 670, 0),
+            new SliderSetting()
+            {
+                m_name = "$slider_Less", m_toolTip = "$ExploreMap_Less_ToolTip",
+                m_modifierValue = WorldModifierOption.Hardcore, m_keys = new() { "ExploreMap-Less" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_Normal", m_toolTip = "$ExploreMap_Normal_ToolTip",
+                m_modifierValue = WorldModifierOption.Default, m_keys = new()
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_More", m_toolTip = "$ExploreMap_More_ToolTip",
+                m_modifierValue = WorldModifierOption.Easy, m_keys = new() { "ExploreMap-More" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_High", m_toolTip = "$ExploreMap_High_ToolTip",
+                m_modifierValue = WorldModifierOption.Casual, m_keys = new() { "ExploreMap-High" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_All", m_toolTip = "$ExploreMap_All_ToolTip",
+                m_modifierValue = WorldModifierOption.VeryEasy, m_keys = new() { "ExploreMap-All" }
+            });
+        CreateSlider("SkillsSpeed", new Vector3(960, 620, 0),
+            new SliderSetting()
+            {
+                m_name = "$slider_Less", m_toolTip = "$SkillsSpeed_Less_ToolTip",
+                m_modifierValue = WorldModifierOption.Hardcore, m_keys = new() { "SkillsSpeed-Less" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_Normal", m_toolTip = "$SkillsSpeed_Normal_ToolTip",
+                m_modifierValue = WorldModifierOption.Default, m_keys = new()
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_More", m_toolTip = "$SkillsSpeed_More_ToolTip",
+                m_modifierValue = WorldModifierOption.Easy, m_keys = new() { "SkillsSpeed-More" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_High", m_toolTip = "$SkillsSpeed_High_ToolTip",
+                m_modifierValue = WorldModifierOption.Casual, m_keys = new() { "SkillsSpeed-High" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_All", m_toolTip = "$SkillsSpeed_All_ToolTip",
+                m_modifierValue = WorldModifierOption.VeryEasy, m_keys = new() { "SkillsSpeed-All" }
+            });
+        CreateSlider("HigherStacks", new Vector3(960, 570, 0),
+            new SliderSetting()
+            {
+                m_name = "$slider_Less", m_toolTip = "$HigherStacks_Less_ToolTip",
+                m_modifierValue = WorldModifierOption.Hardcore, m_keys = new() { "HigherStacks-Less" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_Normal", m_toolTip = "$HigherStacks_Normal_ToolTip",
+                m_modifierValue = WorldModifierOption.Default, m_keys = new()
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_More", m_toolTip = "$HigherStacks_More_ToolTip",
+                m_modifierValue = WorldModifierOption.Easy, m_keys = new() { "HigherStacks-More" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_High", m_toolTip = "$HigherStacks_High_ToolTip",
+                m_modifierValue = WorldModifierOption.Casual, m_keys = new() { "HigherStacks-High" }
+            });
+    }
+
+    private static void CreateMod(string key, Vector3 pos, bool m_defaultOn = false)
+    {
+        var example = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "PlayerBasedEvents");
+        KeyToggle keyToggle;
+        keyToggle = Object.Instantiate(example, example.transform.parent).GetComponent<KeyToggle>();
+        keyToggle.name = key;
+        keyToggle.m_enabledKey = key;
+        keyToggle.m_toolTip = $"${key}_Tooltip";
+        keyToggle.GetComponentInChildren<Text>().text = $"${key}_DisplayName";
+        keyToggle.m_defaultOn = m_defaultOn;
+        keyToggle.m_toggle.isOn = m_defaultOn;
+
+
+        List<KeyUI> keys = ServerOptionsGUI.m_modifiers.ToList();
+        keys.Add(keyToggle);
+        ServerOptionsGUI.m_modifiers = keys.ToArray();
+        keyToggle.transform.SetParent(panel.transform);
+        keyToggle.transform.position = pos;
+        keyToggle.m_toolTipLabel = tooltipText;
+    }
+
+    private static void CreateSlider(string key, Vector3 pos, params SliderSetting[] settings)
+    {
+        var example = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Portals");
+        KeySlider keySlider;
+        GameObject sliderObj = Object.Instantiate(example, example.transform.parent).gameObject;
+        keySlider = sliderObj.GetComponentInChildren<KeySlider>();
+        sliderObj.name = key;
+        keySlider.m_modifier = WorldModifiers.Events;
+        sliderObj.transform.GetChild(0).GetComponent<Text>().text = $"${key}_DisplayName";
+        keySlider.m_toolTipLabel = tooltipText;
+        keySlider.m_settings = settings.ToList();
+        keySlider.m_toolTip = $"${key}_Tooltip";
+        keySlider.GetComponent<Slider>().maxValue = keySlider.m_settings.Count - 1;
+
+        List<KeyUI> keys = ServerOptionsGUI.m_modifiers.ToList();
+        keys.Add(keySlider);
+        ServerOptionsGUI.m_modifiers = keys.ToArray();
+        sliderObj.transform.SetParent(panel.transform);
+        sliderObj.transform.position = pos;
     }
 }

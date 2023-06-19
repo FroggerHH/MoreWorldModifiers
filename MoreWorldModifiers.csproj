@@ -78,10 +78,23 @@
         <Reference Include="UnityEngine.UI">
           <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.UI.dll</HintPath>
         </Reference>
+        <Reference Include="YamlDotNet, Version=13.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+          <HintPath>packages\YamlDotNet.13.1.1\lib\net47\YamlDotNet.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="GoExtensions.cs" />
+        <Compile Include="LocalizationManager\LocalizationManager.cs" />
+        <Compile Include="Patch\AllRecipesUnlockedPatch.cs" />
+        <Compile Include="Patch\FallDamagePatch.cs" />
+        <Compile Include="Patch\HigherStacksPatch.cs" />
+        <Compile Include="Patch\MapExplorationPatch.cs" />
         <Compile Include="Patch\MoreWorldModifiersPatch.cs" />
+        <Compile Include="Patch\NoDurabilityLossPatch.cs" />
+        <Compile Include="Patch\NoStaminaCostPatch.cs" />
+        <Compile Include="Patch\NoWetPatch.cs" />
+        <Compile Include="Patch\PowersBossesOnStartPatch.cs" />
+        <Compile Include="Patch\SkillsSpeedPatch.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="ConfigurationManagerAttributes.cs" />
         <Compile Include="PrefabManager.cs" />
@@ -94,6 +107,12 @@
     <ItemGroup>
       <Content Include="Build\MoreWorldModifiers.dll" />
       <Content Include="ILRepack.targets" />
+      <EmbeddedResource Include="translations\English.yml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <EmbeddedResource Include="translations\Russian.yml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
       <Folder Include="assets\" />
