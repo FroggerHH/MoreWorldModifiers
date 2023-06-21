@@ -18,7 +18,8 @@ namespace MoreWorldModifiers;
 internal static class MoreWorldModifiers
 {
     internal static GameObject panel;
-    internal static Text tooltipText;
+    internal static Transform tooltipText;
+    internal static Transform tooltipTextParent;
 
     private static void CreateButtons()
     {
@@ -35,6 +36,7 @@ internal static class MoreWorldModifiers
         {
             panel.SetActive(false);
             ServerOptionsGUI.m_instance.transform.GetChild(0).gameObject.SetActive(true);
+            tooltipText.SetParent(tooltipTextParent);
         }));
         var buttonShow = Object.Instantiate(cancseButton, cancseButton.transform.parent).GetComponent<Button>();
         buttonShow.gameObject.name = "Show Advanced Modifiers";
@@ -45,6 +47,7 @@ internal static class MoreWorldModifiers
         {
             panel.SetActive(true);
             ServerOptionsGUI.m_instance.transform.GetChild(0).gameObject.SetActive(false);
+            tooltipText.SetParent(panel.transform);
         }));
         buttonShow.GetComponentInChildren<Text>().text = "$advancedModifiers";
         buttonShow.transform.position = buttonCloce.transform.position;
@@ -62,30 +65,16 @@ internal static class MoreWorldModifiers
         {
             var gameObject = panel.transform.GetChild(i).gameObject;
             if (gameObject.name != "bkg" &&
-                gameObject.name != "topic" &&
-                gameObject.name != "Tooltips") // && gameObject.name != ""
+                gameObject.name != "topic") // && gameObject.name != ""
             {
                 Object.Destroy(gameObject);
             }
         }
 
-        tooltipText = Utils.FindChild(panel.transform, "ToolTipText").GetComponent<Text>();
+        tooltipText = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Tooltips");
+        tooltipTextParent = tooltipText.parent;
 
         panel.GetComponentInChildren<Text>().text = "$advancedModifiers";
-    }
-
-    [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.ReadKeys)), HarmonyPrefix]
-    private static void ReadKeysPatch(World world)
-    {
-        if (world.m_startingGlobalKeys.Count == 0 && !world.m_startingGlobalKeys.Contains("FallDamage".ToLower()))
-            world.m_startingGlobalKeys.Add("FallDamage".ToLower());
-    }
-
-    [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.OnNewWorldDone)), HarmonyPostfix]
-    private static void OnNewWorldDone(FejdStartup __instance)
-    {
-        if (!__instance.m_world.m_startingGlobalKeys.Contains("FallDamage".ToLower()))
-            __instance.m_world.m_startingGlobalKeys.Add("FallDamage".ToLower());
     }
 
     [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.Awake)), HarmonyPostfix]
@@ -93,14 +82,12 @@ internal static class MoreWorldModifiers
     {
         CreatePanel();
         CreateButtons();
+        CreateToggles();
+        CreateSliders();
+    }
 
-
-        CreateMod("PowersBossesOnStart", new Vector3(846, 775, 0));
-        CreateMod("NoStaminaCost", new Vector3(1010, 775, 0));
-        CreateMod("NoDurabilityLoss", new Vector3(1174, 775, 0));
-        CreateMod("AllRecipesUnlocked", new Vector3(846, 720, 0));
-        CreateMod("FallDamage", new Vector3(1010, 720, 0), true);
-        CreateMod("NoWet", new Vector3(1174, 720, 0), false);
+    private static void CreateSliders()
+    {
         CreateSlider("MapExploration", new Vector3(960, 670, 0),
             new SliderSetting()
             {
@@ -174,9 +161,46 @@ internal static class MoreWorldModifiers
                 m_name = "$slider_High", m_toolTip = "$HigherStacks_High_ToolTip",
                 m_modifierValue = WorldModifierOption.Casual, m_keys = new() { "HigherStacks-High" }
             });
+        CreateSlider("MaxWeight", new Vector3(960, 520, 0),
+            new SliderSetting()
+            {
+                m_name = "$slider_Less", m_toolTip = "$MaxWeight_Less_ToolTip",
+                m_modifierValue = WorldModifierOption.Hardcore, m_keys = new() { "MaxWeight-Less" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_Normal", m_toolTip = "$MaxWeight_Normal_ToolTip",
+                m_modifierValue = WorldModifierOption.Default, m_keys = new()
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_More", m_toolTip = "$MaxWeight_More_ToolTip",
+                m_modifierValue = WorldModifierOption.Easy, m_keys = new() { "MaxWeight-More" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_High", m_toolTip = "$MaxWeight_High_ToolTip",
+                m_modifierValue = WorldModifierOption.Casual, m_keys = new() { "MaxWeight-High" }
+            },
+            new SliderSetting()
+            {
+                m_name = "$slider_All", m_toolTip = "$MaxWeight_All_ToolTip",
+                m_modifierValue = WorldModifierOption.VeryEasy, m_keys = new() { "MaxWeight-All" }
+            });
     }
 
-    private static void CreateMod(string key, Vector3 pos, bool m_defaultOn = false)
+    private static void CreateToggles()
+    {
+        CreateToggle("PowersBossesOnStart", new Vector3(846, 775, 0));
+        CreateToggle("NoStaminaCost", new Vector3(1010, 775, 0));
+        CreateToggle("NoDurabilityLoss", new Vector3(1174, 775, 0));
+        CreateToggle("AllRecipesUnlocked", new Vector3(846, 720, 0));
+        CreateToggle("NoFallDamage", new Vector3(1010, 720, 0));
+        CreateToggle("NoWet", new Vector3(1174, 720, 0));
+        // CreateToggle("MaxWeight", new Vector3(846, 670, 0), false);
+    }
+
+    private static void CreateToggle(string key, Vector3 pos)
     {
         var example = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "PlayerBasedEvents");
         KeyToggle keyToggle;
@@ -185,8 +209,7 @@ internal static class MoreWorldModifiers
         keyToggle.m_enabledKey = key;
         keyToggle.m_toolTip = $"${key}_Tooltip";
         keyToggle.GetComponentInChildren<Text>().text = $"${key}_DisplayName";
-        keyToggle.m_defaultOn = m_defaultOn;
-        keyToggle.m_toggle.isOn = m_defaultOn;
+        //keyToggle.m_toolTipLabel = tooltipText;
 
 
         List<KeyUI> keys = ServerOptionsGUI.m_modifiers.ToList();
@@ -194,7 +217,6 @@ internal static class MoreWorldModifiers
         ServerOptionsGUI.m_modifiers = keys.ToArray();
         keyToggle.transform.SetParent(panel.transform);
         keyToggle.transform.position = pos;
-        keyToggle.m_toolTipLabel = tooltipText;
     }
 
     private static void CreateSlider(string key, Vector3 pos, params SliderSetting[] settings)
@@ -206,7 +228,7 @@ internal static class MoreWorldModifiers
         sliderObj.name = key;
         keySlider.m_modifier = WorldModifiers.Events;
         sliderObj.transform.GetChild(0).GetComponent<Text>().text = $"${key}_DisplayName";
-        keySlider.m_toolTipLabel = tooltipText;
+        //keySlider.m_toolTipLabel = tooltipText;
         keySlider.m_settings = settings.ToList();
         keySlider.m_toolTip = $"${key}_Tooltip";
         keySlider.GetComponent<Slider>().maxValue = keySlider.m_settings.Count - 1;

@@ -28,6 +28,7 @@ internal static class HigherStacksPatch
         {
             var item = item_.GetComponent<ItemDrop>();
             var size = item.m_itemData.m_shared.m_maxStackSize;
+            if (size == 1) continue;
             if (less)
             {
                 item.m_itemData.m_shared.m_maxStackSize = Mathf.FloorToInt((float)size / 1.5f);

@@ -14,30 +14,30 @@ using Object = UnityEngine.Object;
 namespace MoreWorldModifiers;
 
 [HarmonyPatch]
-internal static class MapExplorationPatch
+internal static class MaxWeightPatch
 {
     [HarmonyPatch(typeof(Game), nameof(Game.SpawnPlayer)), HarmonyPostfix]
     public static void ApplyMapExplorationEffect()
     {
-        if (!Game.instance.m_firstSpawn ) return;
-        if (ZoneSystem.instance.GetGlobalKey("ExploreMap-Less"))
+        if (!Game.instance.m_firstSpawn) return;
+        if (ZoneSystem.instance.GetGlobalKey("MaxWeight-Less"))
         {
-            Minimap.instance.m_exploreRadius /= 1.5f;
+            Player.m_localPlayer.m_maxCarryWeight /= 1.5f;
         }
 
-        if (ZoneSystem.instance.GetGlobalKey("ExploreMap-More"))
+        if (ZoneSystem.instance.GetGlobalKey("MaxWeight-More"))
         {
-            Minimap.instance.m_exploreRadius *= 1.5f;
+            Player.m_localPlayer.m_maxCarryWeight *= 1.5f;
         }
 
-        if (ZoneSystem.instance.GetGlobalKey("ExploreMap-High"))
+        if (ZoneSystem.instance.GetGlobalKey("MaxWeight-High"))
         {
-            Minimap.instance.m_exploreRadius *= 2.5f;
+            Player.m_localPlayer.m_maxCarryWeight *= 2.5f;
         }
 
-        if (ZoneSystem.instance.GetGlobalKey("ExploreMap-All"))
+        if (ZoneSystem.instance.GetGlobalKey("MaxWeight-All"))
         {
-            Minimap.instance.ExploreAll();
+            Player.m_localPlayer.m_maxCarryWeight = 999999;
         }
     }
 }

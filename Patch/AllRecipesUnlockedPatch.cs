@@ -20,6 +20,7 @@ internal static class AllRecipesUnlockedPatch
     public static void ApplyAllRecipesUnlockedEffect(Player __instance)
     {
         if(SceneManager.GetActiveScene().name != "main") return;
+        if(__instance != Player.m_localPlayer) return;
         var globalKey = ZoneSystem.instance.GetGlobalKey("AllRecipesUnlocked");
         if(!globalKey) return;
         
