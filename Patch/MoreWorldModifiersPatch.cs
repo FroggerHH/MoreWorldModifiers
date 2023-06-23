@@ -20,6 +20,7 @@ internal static class MoreWorldModifiers
     internal static GameObject panel;
     internal static Transform tooltipText;
     internal static Transform tooltipTextParent;
+    internal static List<string> keysAdded = new();
 
     private static void CreateButtons()
     {
@@ -88,7 +89,7 @@ internal static class MoreWorldModifiers
 
     private static void CreateSliders()
     {
-        CreateSlider("MapExploration", new Vector3(960, 670, 0),
+        CreateSlider("MapExploration", new Vector3(960, 620, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$ExploreMap_Less_ToolTip",
@@ -114,7 +115,7 @@ internal static class MoreWorldModifiers
                 m_name = "$slider_All", m_toolTip = "$ExploreMap_All_ToolTip",
                 m_modifierValue = WorldModifierOption.VeryEasy, m_keys = new() { "ExploreMap-All" }
             });
-        CreateSlider("SkillsSpeed", new Vector3(960, 620, 0),
+        CreateSlider("SkillsSpeed", new Vector3(960, 570, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$SkillsSpeed_Less_ToolTip",
@@ -140,7 +141,7 @@ internal static class MoreWorldModifiers
                 m_name = "$slider_All", m_toolTip = "$SkillsSpeed_All_ToolTip",
                 m_modifierValue = WorldModifierOption.VeryEasy, m_keys = new() { "SkillsSpeed-All" }
             });
-        CreateSlider("HigherStacks", new Vector3(960, 570, 0),
+        CreateSlider("HigherStacks", new Vector3(960, 520, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$HigherStacks_Less_ToolTip",
@@ -161,7 +162,7 @@ internal static class MoreWorldModifiers
                 m_name = "$slider_High", m_toolTip = "$HigherStacks_High_ToolTip",
                 m_modifierValue = WorldModifierOption.Casual, m_keys = new() { "HigherStacks-High" }
             });
-        CreateSlider("MaxWeight", new Vector3(960, 520, 0),
+        CreateSlider("MaxWeight", new Vector3(960, 470, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$MaxWeight_Less_ToolTip",
@@ -197,6 +198,8 @@ internal static class MoreWorldModifiers
         CreateToggle("AllRecipesUnlocked", new Vector3(846, 720, 0));
         CreateToggle("NoFallDamage", new Vector3(1010, 720, 0));
         CreateToggle("NoWet", new Vector3(1174, 720, 0));
+        CreateToggle("NoHugin", new Vector3(846, 670, 0));
+        CreateToggle("ClearWeather", new Vector3(1010, 670, 0));
         // CreateToggle("MaxWeight", new Vector3(846, 670, 0), false);
     }
 
@@ -217,6 +220,8 @@ internal static class MoreWorldModifiers
         ServerOptionsGUI.m_modifiers = keys.ToArray();
         keyToggle.transform.SetParent(panel.transform);
         keyToggle.transform.position = pos;
+        
+        keysAdded.Add(key);
     }
 
     private static void CreateSlider(string key, Vector3 pos, params SliderSetting[] settings)
