@@ -89,7 +89,7 @@ internal static class MoreWorldModifiers
 
     private static void CreateSliders()
     {
-        CreateSlider("MapExploration", new Vector3(960, 620, 0),
+        CreateSlider("MapExploration", new Vector3(0, 90, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$ExploreMap_Less_ToolTip",
@@ -115,7 +115,7 @@ internal static class MoreWorldModifiers
                 m_name = "$slider_All", m_toolTip = "$ExploreMap_All_ToolTip",
                 m_modifierValue = WorldModifierOption.VeryEasy, m_keys = new() { "ExploreMap-All" }
             });
-        CreateSlider("SkillsSpeed", new Vector3(960, 570, 0),
+        CreateSlider("SkillsSpeed", new Vector3(0, 40, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$SkillsSpeed_Less_ToolTip",
@@ -141,7 +141,7 @@ internal static class MoreWorldModifiers
                 m_name = "$slider_All", m_toolTip = "$SkillsSpeed_All_ToolTip",
                 m_modifierValue = WorldModifierOption.VeryEasy, m_keys = new() { "SkillsSpeed-All" }
             });
-        CreateSlider("HigherStacks", new Vector3(960, 520, 0),
+        CreateSlider("HigherStacks", new Vector3(0, -10, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$HigherStacks_Less_ToolTip",
@@ -162,7 +162,7 @@ internal static class MoreWorldModifiers
                 m_name = "$slider_High", m_toolTip = "$HigherStacks_High_ToolTip",
                 m_modifierValue = WorldModifierOption.Casual, m_keys = new() { "HigherStacks-High" }
             });
-        CreateSlider("MaxWeight", new Vector3(960, 470, 0),
+        CreateSlider("MaxWeight", new Vector3(0, -60, 0),
             new SliderSetting()
             {
                 m_name = "$slider_Less", m_toolTip = "$MaxWeight_Less_ToolTip",
@@ -192,15 +192,15 @@ internal static class MoreWorldModifiers
 
     private static void CreateToggles()
     {
-        CreateToggle("PowersBossesOnStart", new Vector3(846, 775, 0));
-        CreateToggle("NoStaminaCost", new Vector3(1010, 775, 0));
-        CreateToggle("NoDurabilityLoss", new Vector3(1174, 775, 0));
-        CreateToggle("AllRecipesUnlocked", new Vector3(846, 720, 0));
-        CreateToggle("NoFallDamage", new Vector3(1010, 720, 0));
-        CreateToggle("NoWet", new Vector3(1174, 720, 0));
-        CreateToggle("NoHugin", new Vector3(846, 670, 0));
-        CreateToggle("ClearWeather", new Vector3(1010, 670, 0));
-        // CreateToggle("MaxWeight", new Vector3(846, 670, 0), false);
+        CreateToggle("PowersBossesOnStart", new Vector3(-110, 240, 0));
+        CreateToggle("NoStaminaCost", new Vector3(55, 240, 0));
+        CreateToggle("NoDurabilityLoss", new Vector3(220, 240, 0));
+        CreateToggle("AllRecipesUnlocked", new Vector3(-110, 190, 0));
+        CreateToggle("NoFallDamage", new Vector3(55, 190, 0));
+        CreateToggle("NoWet", new Vector3(220, 190, 0));
+        CreateToggle("NoHugin", new Vector3(-110, 140, 0));
+        CreateToggle("ClearWeather", new Vector3(55, 140, 0));
+        // CreateToggle("MaxWeight", new Vector3(220, 670, 0), false);
     }
 
     private static void CreateToggle(string key, Vector3 pos)
@@ -219,8 +219,19 @@ internal static class MoreWorldModifiers
         keys.Add(keyToggle);
         ServerOptionsGUI.m_modifiers = keys.ToArray();
         keyToggle.transform.SetParent(panel.transform);
-        keyToggle.transform.position = pos;
-        
+        keyToggle.transform.localPosition = pos;
+        var rectTransform = (keyToggle.transform as RectTransform);
+        var edge = RectTransform.Edge.Top | RectTransform.Edge.Left;
+        int index = edge == RectTransform.Edge.Top || edge == RectTransform.Edge.Bottom ? 1 : 0;
+        bool flag = edge == RectTransform.Edge.Top || edge == RectTransform.Edge.Right;
+        float num = flag ? 1f : 0.0f;
+        Vector2 anchorMin = rectTransform.anchorMin;
+        anchorMin[index] = num;
+        rectTransform.anchorMin = anchorMin;
+        Vector2 anchorMax = rectTransform.anchorMax;
+        anchorMax[index] = num;
+        rectTransform.anchorMax = anchorMax;
+
         keysAdded.Add(key);
     }
 
@@ -231,7 +242,7 @@ internal static class MoreWorldModifiers
         GameObject sliderObj = Object.Instantiate(example, example.transform.parent).gameObject;
         keySlider = sliderObj.GetComponentInChildren<KeySlider>();
         sliderObj.name = key;
-        keySlider.m_modifier = WorldModifiers.Events;
+        keySlider.m_modifier = WorldModifiers.Default;
         sliderObj.transform.GetChild(0).GetComponent<Text>().text = $"${key}_DisplayName";
         //keySlider.m_toolTipLabel = tooltipText;
         keySlider.m_settings = settings.ToList();
@@ -242,6 +253,17 @@ internal static class MoreWorldModifiers
         keys.Add(keySlider);
         ServerOptionsGUI.m_modifiers = keys.ToArray();
         sliderObj.transform.SetParent(panel.transform);
-        sliderObj.transform.position = pos;
+        sliderObj.transform.localPosition = pos;
+        var rectTransform = (sliderObj.transform as RectTransform);
+        var edge = RectTransform.Edge.Top | RectTransform.Edge.Left;
+        int index = edge == RectTransform.Edge.Top || edge == RectTransform.Edge.Bottom ? 1 : 0;
+        bool flag = edge == RectTransform.Edge.Top || edge == RectTransform.Edge.Right;
+        float num = flag ? 1f : 0.0f;
+        Vector2 anchorMin = rectTransform.anchorMin;
+        anchorMin[index] = num;
+        rectTransform.anchorMin = anchorMin;
+        Vector2 anchorMax = rectTransform.anchorMax;
+        anchorMax[index] = num;
+        rectTransform.anchorMax = anchorMax;
     }
 }
