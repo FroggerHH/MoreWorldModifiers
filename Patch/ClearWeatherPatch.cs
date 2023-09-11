@@ -19,19 +19,9 @@ internal static class ClearWeatherPatch
     [HarmonyPatch(typeof(Game), nameof(Game.SpawnPlayer)), HarmonyPostfix]
     public static void ApplyNoHuginEffect(Game __instance)
     {
-        if (!__instance.m_firstSpawn) return;
         var globalKey = ZoneSystem.instance.GetGlobalKey("ClearWeather");
         if (!globalKey) return;
 
-        EnvMan.instance.m_environments.Remove(
-            EnvMan.instance.m_environments.Find(x => x.m_name == "Mistlands_thunder"));
-        EnvMan.instance.m_environments.Remove(
-            EnvMan.instance.m_environments.Find(x => x.m_name == "Mistlands_rain"));
-        EnvMan.instance.m_environments.Remove(
-            EnvMan.instance.m_environments.Find(x => x.m_name == "ThunderStorm"));
-        EnvMan.instance.m_environments.Remove(
-            EnvMan.instance.m_environments.Find(x => x.m_name == "LightRain"));
-        EnvMan.instance.m_environments.Remove(
-            EnvMan.instance.m_environments.Find(x => x.m_name == "Rain"));
+        EnvMan.instance.m_debugEnv = "Clear";
     }
 }
