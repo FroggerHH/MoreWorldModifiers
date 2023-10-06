@@ -5,7 +5,7 @@ using static KeySlider;
 namespace MoreWorldModifiers;
 
 [HarmonyPatch]
-internal static class MoreWorldModifiers
+internal static class InitializePanelPatch
 {
     internal static GameObject panel;
     internal static Transform tooltipText;
@@ -49,12 +49,9 @@ internal static class MoreWorldModifiers
         panel = Instantiate(ServerOptionsGUI.m_instance.transform.GetChild(0).gameObject,
             ServerOptionsGUI.m_instance.transform.GetChild(0).parent);
         panel.name = "New Modifiers";
-        Debug($"CreatePanel 0, panel '{panel.name}'");
         panel.SetActive(false);
         var findTopic = Utils.FindChild(panel.transform, "topic");
-        Debug($"CreatePanel 1, findTopic '{findTopic?.name}'");
         var topicText = findTopic.GetComponent<TextMeshProUGUI>();
-        Debug($"CreatePanel 2, topicText '{topicText?.name}'");
         topicText.text = "$advancedModifiers";
         for (var i = 0; i < panel.transform.childCount; i++)
         {
@@ -64,14 +61,10 @@ internal static class MoreWorldModifiers
         }
 
         tooltipText = Utils.FindChild(ServerOptionsGUI.m_instance.transform, "Tooltips");
-        Debug($"""CreatePanel 3, tooltipText '{tooltipText?.name}'""");
         tooltipTextParent = tooltipText.parent;
 
         var panelText = panel.GetComponentInChildren<TextMeshProUGUI>();
-        Debug($"""CreatePanel 4, panelText '{panelText?.name}'""");
         panelText.text = "$advancedModifiers";
-
-        Debug("Done CreatePanel");
     }
 
     [HarmonyPatch(typeof(ServerOptionsGUI), nameof(ServerOptionsGUI.Awake))] [HarmonyPostfix]
@@ -196,7 +189,6 @@ internal static class MoreWorldModifiers
         CreateToggle("NoWet", new Vector3(220, 190, 0));
         CreateToggle("NoHugin", new Vector3(-110, 140, 0));
         CreateToggle("ClearWeather", new Vector3(55, 140, 0));
-        // CreateToggle("MaxWeight", new Vector3(220, 670, 0), false);
     }
 
     private static void CreateToggle(string key, Vector3 pos)

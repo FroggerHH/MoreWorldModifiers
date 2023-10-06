@@ -9,7 +9,7 @@ internal static class RemoveKeysPatch
         if (!__instance.m_firstSpawn) return;
 
         var startingGlobalKeys = WorldGenerator.instance.m_world.m_startingGlobalKeys;
-        var keys = MoreWorldModifiers.keysAdded;
+        var keys = InitializePanelPatch.keysAdded;
 
         foreach (var key in keys)
         {

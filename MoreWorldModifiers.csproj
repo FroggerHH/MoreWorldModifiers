@@ -90,14 +90,13 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="GlobalUsings.cs" />
-        <Compile Include="GoExtensions.cs" />
         <Compile Include="LocalizationManager\LocalizationManager.cs" />
         <Compile Include="Patch\AllRecipesUnlockedPatch.cs" />
         <Compile Include="Patch\ClearWeatherPatch.cs" />
         <Compile Include="Patch\HigherStacksPatch.cs" />
         <Compile Include="Patch\MapExplorationPatch.cs" />
         <Compile Include="Patch\MaxWeightPatch.cs" />
-        <Compile Include="Patch\MoreWorldModifiersPatch.cs" />
+        <Compile Include="Patch\InitializePanelPatch.cs" />
         <Compile Include="Patch\NoDurabilityLossPatch.cs" />
         <Compile Include="Patch\NoFallDamagePatch.cs" />
         <Compile Include="Patch\NoHuginPatch.cs" />
@@ -108,7 +107,6 @@
         <Compile Include="Patch\SkillsSpeedPatch.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="ConfigurationManagerAttributes.cs" />
-        <Compile Include="PrefabManager.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>
@@ -117,6 +115,7 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include="ILRepack.targets" />
+      <Content Include="README.md" />
       <EmbeddedResource Include="translations\English.yml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </EmbeddedResource>

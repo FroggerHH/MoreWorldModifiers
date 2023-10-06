@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using LocalizationManager;
 
 namespace MoreWorldModifiers;
 
@@ -8,13 +7,13 @@ public class Plugin : BaseUnityPlugin
 {
     public const string ModName = "MoreWorldModifiers",
         ModAuthor = "Frogger",
-        ModVersion = "1.1.0",
+        ModVersion = "1.2.0",
         ModGUID = $"com.{ModAuthor}.{ModName}";
 
 
     private void Awake()
     {
         CreateMod(this, ModName, ModAuthor, ModVersion);
-        Localizer.Load();
+        LocalizationManager.Localizer.Load();
     }
 }
