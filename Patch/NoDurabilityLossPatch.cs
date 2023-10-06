@@ -1,26 +1,13 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using static MoreWorldModifiers.Plugin;
-using static Heightmap;
-using Object = UnityEngine.Object;
-
 namespace MoreWorldModifiers;
 
 [HarmonyPatch]
 internal static class NoDurabilityLossPatch
 {
-    [HarmonyPatch(typeof(Game), nameof(Game.SpawnPlayer)), HarmonyPostfix]
+    [HarmonyPatch(typeof(Game), nameof(Game.SpawnPlayer))] [HarmonyPostfix]
     public static void ApplyNoDurabilityLossEffect()
     {
         if (!Game.instance.m_firstSpawn) return;
-        var globalKey = ZoneSystem.instance.GetGlobalKey("NoDurabilityLoss");
+        var globalKey = instance.GetGlobalKey("NoDurabilityLoss");
         if (!globalKey) return;
 
         foreach (var item in ObjectDB.instance.m_items)
@@ -31,16 +18,13 @@ internal static class NoDurabilityLossPatch
         }
     }
 
-    [HarmonyPatch(typeof(Player), nameof(Player.PlacePiece)), HarmonyPostfix]
+    [HarmonyPatch(typeof(Player), nameof(Player.PlacePiece))] [HarmonyPostfix]
     public static void ApplyNoDurabilityLossEffect_Hammer(Player __instance)
     {
-        var globalKey = ZoneSystem.instance.GetGlobalKey("NoDurabilityLoss");
+        var globalKey = instance.GetGlobalKey("NoDurabilityLoss");
         if (!globalKey) return;
 
-        ItemDrop.ItemData rightItem = __instance.GetRightItem();
-        if (rightItem != null)
-        {
-            rightItem.m_durability = rightItem.m_shared.m_maxDurability;
-        }
+        var rightItem = __instance.GetRightItem();
+        if (rightItem != null) rightItem.m_durability = rightItem.m_shared.m_maxDurability;
     }
 }
