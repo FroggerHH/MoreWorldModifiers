@@ -23,4 +23,4 @@ Mod adds 12 new world modifiers to the game.
 Translated to English and Russian. Translation file:
 [English.yml](https://github.com/FroggerHH/MoreWorldModifiers/blob/main/translations/English.yml)
 
-![https://github.com/FroggerHH/MoreWorldModifiers/blob/main/image.png](image.png)
+![image.png](https://github.com/FroggerHH/MoreWorldModifiers/blob/main/image.png?raw=true)
